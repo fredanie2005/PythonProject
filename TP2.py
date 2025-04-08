@@ -89,6 +89,10 @@ def inverse(M):
         return "X"
     return multiply_from_scal(transpose(com(M)), 1/det(M))
 
+
+# Draw
+
+
 def print_matrice(M, color=Colors.WHITE):
     print(color + "┌" + "─" * (len(M) * 8 - 1) + "┐")
     for x in range(len(M)):
@@ -101,6 +105,11 @@ def print_matrice(M, color=Colors.WHITE):
         print(color + "│")
     print(color + "└" + "─" * (len(M) * 8 - 1) + "┘" + Colors.RESET)
     print()
+    
+    
+   
+# Test
+
 
 print(Colors.CYAN + "Matrice M:" + Colors.RESET)
 print_matrice(M, Colors.CYAN)
@@ -120,3 +129,5 @@ print_matrice(transpose(M), Colors.RED)
 
 print(Colors.GREEN + "Inverse de M:" + Colors.RESET)
 print_matrice(inverse(M), Colors.GREEN)
+
+
