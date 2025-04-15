@@ -357,5 +357,208 @@ def tracer_positions():
     ax.set_ylim(-10, 10)
     ax.set_zlim(-10, 10)
     plt.show()
+def haltere(n, longueur_barre, rayon_barre, rayon_poids, hauteur_poids):
 
-tracer_positions()
+    points = []
+    
+    n_barre = n // 3
+    n_poids = n // 3
+    
+    step_r_barre = rayon_barre / (n_barre**0.25)
+    step_theta = 2 * 3.141592653589793 / (n_barre**0.25)
+    step_z_barre = longueur_barre / (n_barre**0.25)
+    
+    for k in range(int(n_barre**0.25)):
+        z = -longueur_barre/2 + k * step_z_barre
+        for i in range(int(n_barre**0.25)):
+            r = i * step_r_barre
+            for j in range(int(n_barre**0.25)):
+                theta = j * step_theta
+                x = r * cosinus(theta)
+                y = r * sinus(theta)
+                points.append([x, y, z])
+    
+    step_r_poids = rayon_poids / (n_poids**0.25)
+    step_z_poids = hauteur_poids / (n_poids**0.25)
+    
+    for k in range(int(n_poids**0.25)):
+        z = -longueur_barre/2 - hauteur_poids + k * step_z_poids
+        for i in range(int(n_poids**0.25)):
+            r = i * step_r_poids
+            for j in range(int(n_poids**0.25)):
+                theta = j * step_theta
+                x = r * cosinus(theta)
+                y = r * sinus(theta)
+                points.append([x, y, z])
+    
+    # Création du deuxième poids (cylindre droit)
+    for k in range(int(n_poids**0.25)):
+        z = longueur_barre/2 + k * step_z_poids
+        for i in range(int(n_poids**0.25)):
+            r = i * step_r_poids
+            for j in range(int(n_poids**0.25)):
+                theta = j * step_theta
+                x = r * cosinus(theta)
+                y = r * sinus(theta)
+                points.append([x, y, z])
+    
+    return transpose(points)
+
+def draw_haltere(n=30000, longueur_barre=6, rayon_barre=0.5, rayon_poids=2, hauteur_poids=1):
+
+    points = haltere(n, longueur_barre, rayon_barre, rayon_poids, hauteur_poids)
+    
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    X, Y, Z = points[0], points[1], points[2]
+    
+    ax.scatter(X, Y, Z, c=Z, cmap='viridis', s=10)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('Haltère 3D')
+    
+    # Équilibrer les axes pour une meilleure visualisation
+    max_range = max([
+        max(X) - min(X),
+        max(Y) - min(Y),
+        max(Z) - min(Z)
+    ]) / 2.0
+    
+    mid_x = (max(X) + min(X)) / 2
+    mid_y = (max(Y) + min(Y)) / 2
+    mid_z = (max(Z) + min(Z)) / 2
+    
+    ax.set_xlim(mid_x - max_range, mid_x + max_range)
+    ax.set_ylim(mid_y - max_range, mid_y + max_range)
+    ax.set_zlim(mid_z - max_range, mid_z + max_range)
+    
+    plt.show()
+
+def haltere_rotation_translation(n=1000, longueur_barre=6, rayon_barre=0.5, rayon_poids=2, hauteur_poids=1, 
+                                 position=[0, 0, 0], angles=[0, 0, 0]):
+
+    # Créer l'haltère centré à l'origine
+    points_haltere = haltere(n, longueur_barre, rayon_barre, rayon_poids, hauteur_poids)
+    
+    # Convertir les points en format liste de listes pour la rotation
+    points_list = []
+    for i in range(len(points_haltere[0])):
+        points_list.append([points_haltere[0][i], points_haltere[1][i], points_haltere[2][i]])
+    
+    # Appliquer la rotation
+    R = rotation_matrix(angles)
+    points_rotated = rotate_points(points_list, R)
+    
+    # Appliquer la translation
+    points_final = translater_cylindre(points_rotated, position)
+    
+    # Convertir en format attendu par plot_3d
+    X = [p[0] for p in points_final]
+    Y = [p[1] for p in points_final]
+    Z = [p[2] for p in points_final]
+    
+    return [X, Y, Z]
+
+def draw_haltere_with_motion(n=20000, longueur_barre=6, rayon_barre=0.5, rayon_poids=2, hauteur_poids=1):
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Définir les limites de l'axe pour une visualisation cohérente
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.set_zlim(-10, 10)
+    
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('Haltère en mouvement')
+    
+    # Simuler différentes positions et rotations
+    positions = [
+        [0, 0, 0],
+        [2, 1, 3],
+        [4, -2, 1],
+        [-3, 2, -2],
+        [-1, -3, 4]
+    ]
+    
+    rotations = [
+        [0, 0, 0],
+        [0.5, 0, 0],
+        [0, 0.5, 0],
+        [0, 0, 0.5],
+        [0.3, 0.3, 0.3]
+    ]
+    
+    colors = ['blue', 'green', 'red', 'purple', 'orange']
+    
+    for i in range(len(positions)):
+        points = haltere_rotation_translation(
+            n=n, 
+            longueur_barre=longueur_barre, 
+            rayon_barre=rayon_barre, 
+            rayon_poids=rayon_poids, 
+            hauteur_poids=hauteur_poids,
+            position=positions[i],
+            angles=rotations[i]
+        )
+        
+        X, Y, Z = points
+        ax.scatter(X, Y, Z, color=colors[i], alpha=0.6, s=5, label=f'Position {i+1}')
+    
+    ax.legend()
+    plt.show()
+
+def animate_haltere(n=1000, longueur_barre=6, rayon_barre=0.5, rayon_poids=2, hauteur_poids=1, 
+                   frames=50, save_animation=False):
+
+    import matplotlib.animation as animation
+    
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Définir les limites de l'axe pour une visualisation cohérente
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.set_zlim(-10, 10)
+    
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('Animation d\'un haltère')
+    
+    # Créer un scatter plot vide
+    scatter = ax.scatter([], [], [], c='blue', s=5)
+    
+    def update(frame):
+        position = [5 * cosinus(frame/10), 5 * sinus(frame/10), 2 * sinus(frame/15)]
+        angles = [frame/20, frame/25, frame/30]
+        
+        points = haltere_rotation_translation(
+            n=n, 
+            longueur_barre=longueur_barre, 
+            rayon_barre=rayon_barre, 
+            rayon_poids=rayon_poids, 
+            hauteur_poids=hauteur_poids,
+            position=position,
+            angles=angles
+        )
+        
+        X, Y, Z = points
+        
+        scatter._offsets3d = (X, Y, Z)
+        
+        return scatter,
+
+    anim = animation.FuncAnimation(
+        fig, update, frames=frames, interval=50, blit=True
+    )
+    
+    if save_animation:
+        anim.save('haltere_animation.gif', writer='pillow', fps=60)
+    
+    plt.show()
+
+animate_haltere(save_animation=True)
