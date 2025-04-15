@@ -357,6 +357,7 @@ def tracer_positions():
     ax.set_ylim(-10, 10)
     ax.set_zlim(-10, 10)
     plt.show()
+
 def haltere(n, longueur_barre, rayon_barre, rayon_poids, hauteur_poids):
 
     points = []
@@ -561,4 +562,4 @@ def animate_haltere(n=1000, longueur_barre=6, rayon_barre=0.5, rayon_poids=2, ha
     
     plt.show()
 
-animate_haltere(save_animation=True)
+draw_haltere_with_motion()
