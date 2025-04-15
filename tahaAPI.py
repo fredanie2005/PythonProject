@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt # type: ignore
 from mpl_toolkits.mplot3d import Axes3D # type: ignore
 import random
-
+import matplotlib.animation as animation
 
 def transpose(matrix):
     result = []
@@ -228,9 +228,9 @@ def somme_forces(F):
 
 def translation(m, F, G, vG, h):
 
-    sommeforces = somme_forces(F)
+    Sommeforces = somme_forces(F)
 
-    acceleration = multiplication_vecteur_scalaire(sommeforces, 1 / m)
+    acceleration = multiplication_vecteur_scalaire(Sommeforces, 1 / m)
 
     nouvelle_vitesse = addition_vecteurs3(vG, multiplication_vecteur_scalaire(acceleration, h))
 
@@ -515,7 +515,7 @@ def draw_haltere_with_motion(n=20000, longueur_barre=6, rayon_barre=0.5, rayon_p
 def animate_haltere(n=1000, longueur_barre=6, rayon_barre=0.5, rayon_poids=2, hauteur_poids=1, 
                    frames=50, save_animation=False):
 
-    import matplotlib.animation as animation
+
     
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
@@ -561,5 +561,3 @@ def animate_haltere(n=1000, longueur_barre=6, rayon_barre=0.5, rayon_poids=2, ha
         anim.save('haltere_animation.gif', writer='pillow', fps=60)
     
     plt.show()
-
-draw_haltere_with_motion()
