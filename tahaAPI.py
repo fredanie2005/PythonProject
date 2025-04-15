@@ -1,0 +1,361 @@
+import matplotlib.pyplot as plt # type: ignore
+from mpl_toolkits.mplot3d import Axes3D # type: ignore
+import random
+
+
+def transpose(matrix):
+    result = []
+    for i in range(len(matrix[0])):
+        newMatrix = []
+        for j in range(len(matrix)):
+            newMatrix.append(matrix[j][i])
+        result.append(newMatrix)
+    return result
+
+
+def plot_3d(X, Y, Z):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(X, Y, Z, c=Z, cmap='ocean')
+    plt.show()
+
+
+def ligne(n, xmin, xmax):
+    W = []
+    dx = (xmax - xmin) / (n - 1)
+    for x in range(n):
+        W.append([x * dx, 0, 0])
+    return (transpose(W))
+
+
+def carrevide(n, a):
+    points = []
+    step = a / (n // 4)
+    for i in range(n // 4):
+        points.append([i * step - a / 2, -a / 2, 0])
+        points.append([a / 2, i * step - a / 2, 0])
+        points.append([a / 2 - i * step, a / 2, 0])
+        points.append([-a / 2, a / 2 - i * step, 0])
+    return transpose(points)
+
+
+def carreplein(n, a):
+    points = []
+    side = int(n**0.5)
+    step = a / side
+    for i in range(side):
+        for j in range(side):
+            points.append([i * step - a / 2, j * step - a / 2, 0])
+    return transpose(points)
+
+
+def pave_plein(n, a, b, c):
+    points = []
+    side = int(n**(1 / 3))
+    dx, dy, dz = a / side, b / side, c / side
+    for i in range(side):
+        for j in range(side):
+            for k in range(side):
+                points.append([i * dx - a / 2, j * dy - b / 2, k * dz - c / 2])
+    return transpose(points)
+
+
+def factoriel(n):
+    return 1 if n == 0 else n * factoriel(n - 1)
+
+
+def cosinus(x, terms=10):
+    result = 0
+    for k in range(terms):
+        result += (-1)**k * (x**(2 * k)) / factoriel(2 * k)
+    return result
+
+
+def sinus(x, terms=10):
+    result = 0
+    for k in range(terms):
+        result += (-1)**k * (x**(2 * k + 1)) / factoriel(2 * k + 1)
+    return result
+
+
+def cercle_pleinRANDOMISE(n, R):
+    points = []
+    for i in range(n):
+        r = (random.uniform(0, R**2))**0.5
+        theta = random.uniform(0, 2 * 3.141592653589793)
+        x, y = r * cosinus(theta), r * sinus(theta)
+        points.append([x, y, 0])
+    return transpose(points)
+
+
+def cylindre_pleinRANDOMISE(n, R, h):
+    points = []
+    for i in range(n):
+        r = (random.uniform(0, R**2))**0.5
+        theta = random.uniform(0, 2 * 3.141592653589793)
+        z = random.uniform(-h / 2, h / 2)
+        x, y = r * cosinus(theta), r * sinus(theta)
+        points.append([x, y, z])
+    return transpose(points)
+
+
+def cercle_plein(n, R):
+    points = []
+    step_r = R / (n**0.5)
+    step_theta = (2 * 3.141592653589793) / (n**0.5)
+
+    for i in range(int(n**0.5)):
+        r = i * step_r
+        for j in range(int(n**0.5)):
+            theta = j * step_theta
+            x, y = r * cosinus(theta), r * sinus(theta)
+            points.append([x, y, 0])
+
+    return transpose(points)
+
+
+
+def cylindre_plein(n, R, h):
+    points = []
+
+    step_r = R / (n**0.5)
+    step_theta = 2 * 3.141592653589793 / (n**0.5)
+    step_z = h / (n**0.5)
+
+    for k in range(int(n**0.5)):
+        z = k * step_z
+        for i in range(int(n**0.5)):
+            r = i * step_r
+            for j in range(int(n**0.5)):
+                theta = j * step_theta
+                x = r * cosinus(theta)
+                y = r * sinus(theta)
+                points.append([x, y, z])
+
+    return points
+
+
+def prodmat(A, B):
+    if len(A[0]) != len(B):
+        return "Erreur : les matrices ne sont pas compatibles"
+    result = [[0 for _ in range(len(B[0]))] for _ in range(len(A))]
+    for i in range(len(A)):
+        for j in range(len(B[0])):
+            for k in range(len(B)):
+                result[i][j] += A[i][k] * B[k][j]
+
+    return result
+
+
+def det(A):
+    n = len(A)
+    if any(len(row) != n for row in A):
+        return "La matrice doit être carrée."
+    if n == 1:
+        return A[0][0]
+    if n == 2:
+        return A[0][0] * A[1][1] - A[0][1] * A[1][0]
+    determinant = 0
+    for j in range(n):
+        sub_matrix = [row[:j] + row[j + 1:] for row in A[1:]]
+        determinant += ((-1)**j) * A[0][j] * det(sub_matrix)
+    return determinant
+
+
+def com(A):
+    n = len(A)
+    if any(len(row) != n for row in A):
+        return "La matrice doit être carrée."
+
+    comatrix = []
+    for i in range(n):
+        row = []
+        for j in range(n):
+            sub_matrix = []
+            for k in range(n):
+                if k != i:
+                    sub_row = A[k][:j] + A[k][j + 1:]
+                    sub_matrix.append(sub_row)
+            cofactor = ((-1)**(i + j)) * det(sub_matrix)
+            row.append(cofactor)
+        comatrix.append(row)
+    return comatrix
+
+
+def inv(A):
+    n = len(A)
+    if any(len(row) != n for row in A):
+        return "La matrice doit être carrée."
+    determinant = det(A)
+    if determinant == 0:
+        return "La matrice n'est pas inversible."
+    comatrix = com(A)
+    adjugate = transpose(comatrix)
+    inverse = [[element // determinant for element in row] for row in adjugate]
+    return inverse
+
+
+def somme_vecteurs(vecteurs):
+    somme = [0, 0, 0]
+    for vecteur in vecteurs:
+        for i in range(3):
+            somme[i] += vecteur[i]
+    return somme
+
+def multiplication_vecteur_scalaire(vecteur, scalaire):
+    return [composante * scalaire for composante in vecteur]
+
+def division_vecteur_scalaire(vecteur, scalaire):
+    return [composante / scalaire for composante in vecteur]
+
+def addition_vecteurs3(vecteur1, vecteur2):
+    return [vecteur1[i] + vecteur2[i] for i in range(3)]
+
+def produit_vectoriel(u, v):
+    return [
+        u[1]*v[2] - u[2]*v[1],
+        u[2]*v[0] - u[0]*v[2],
+        u[0]*v[1] - u[1]*v[0]
+    ] 
+
+def somme_forces(F):
+    total = [0, 0, 0]
+    for force_point in F:
+        force = force_point[0]
+        for i in range(3):
+            total[i] += force[i]
+    return total
+
+def translation(m, F, G, vG, h):
+
+    sommeforces = somme_forces(F)
+
+    acceleration = multiplication_vecteur_scalaire(sommeforces, 1 / m)
+
+    nouvelle_vitesse = addition_vecteurs3(vG, multiplication_vecteur_scalaire(acceleration, h))
+
+    nouvelle_position = addition_vecteurs3(G, multiplication_vecteur_scalaire(vG, h))
+
+    return nouvelle_position, nouvelle_vitesse
+
+
+def translater_cylindre(W, vecteur):
+    W_new = []
+    for point in W:
+        W_new.append([point[i] + vecteur[i] for i in range(3)])
+    return W_new
+# Fonctions nécessaires pour la rotation
+def produit_vectoriel(u, v):
+    return [
+        u[1]*v[2] - u[2]*v[1],
+        u[2]*v[0] - u[0]*v[2],
+        u[0]*v[1] - u[1]*v[0]
+    ]
+
+def rotation(I_inv, F, G, teta, omega, h):
+    # Calcul du torque total
+    torque = [0.0, 0.0, 0.0]
+    for force, point in F:
+        r = [point[i] - G[i] for i in range(3)]  # Vecteur de G au point d'application
+        t = produit_vectoriel(r, force)
+        for i in range(3):
+            torque[i] += t[i]
+    
+    # Calcul de l'accélération angulaire alpha = I⁻¹ * torque
+    alpha = [
+        sum(I_inv[i][j] * torque[j] for j in range(3))
+        for i in range(3)
+    ]
+    
+    # Mise à jour de la vitesse angulaire
+    new_omega = [omega[i] + alpha[i] * h for i in range(3)]
+    
+    # Mise à jour de l'orientation (méthode d'Euler)
+    new_teta = [teta[i] + new_omega[i] * h for i in range(3)]
+    
+    return new_teta, new_omega
+
+def rotation_matrix(teta):
+    # Crée une matrice de rotation à partir des angles d'Euler (ZYX)
+    cx = cosinus(teta[0])
+    sx = sinus(teta[0])
+    cy = cosinus(teta[1])
+    sy = sinus(teta[1])
+    cz = cosinus(teta[2])
+    sz = sinus(teta[2])
+    
+    return [
+        [cz*cy, cz*sy*sx - sz*cx, cz*sy*cx + sz*sx],
+        [sz*cy, sz*sy*sx + cz*cx, sz*sy*cx - cz*sx],
+        [-sy, cy*sx, cy*cx]
+    ]
+
+def rotate_points(points, R):
+    # Applique la matrice de rotation à tous les points
+    rotated = []
+    for p in points:
+        new_p = [
+            R[0][0]*p[0] + R[0][1]*p[1] + R[0][2]*p[2],
+            R[1][0]*p[0] + R[1][1]*p[1] + R[1][2]*p[2],
+            R[2][0]*p[0] + R[2][1]*p[1] + R[2][2]*p[2]
+        ]
+        rotated.append(new_p)
+    return rotated
+
+# Fonction de simulation mise à jour
+def tracer_positions():
+    n = 50
+    R = 2
+    h = 5  # hauteur du cylindre
+    m = 1.0
+    h_temps = 0.1
+    
+    # Tenseur d'inertie inverse pour un cylindre (axe Z)
+    I_zz = 0.5 * m * R**2
+    I_xx = (1/12) * m * (3*R**2 + h**2)
+    I_inv = [
+        [1/I_xx, 0, 0],
+        [0, 1/I_xx, 0],
+        [0, 0, 1/I_zz]
+    ]
+    
+    # Configuration initiale
+    F = [
+        [[0, 2, 0], [R, 0, 0]],  # Force créant un couple
+        [[0, -2, 0], [-R, 0, 0]] # Force opposée
+    ]
+    G = [0, 0, 0]
+    vG = [0, 0, 0]
+    teta = [0.0, 0.0, 0.0]
+    omega = [0.0, 0.0, 0.0]
+    
+    cylindre = cylindre_plein(n, R, h)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    
+    for step in range(20):
+        # Mise à jour physique
+        G, vG = translation(m, F, G, vG, h_temps)
+        teta, omega = rotation(I_inv, F, G, teta, omega, h_temps)
+        
+        # Rotation des points
+        R = rotation_matrix(teta)
+        cylindre_rot = rotate_points(cylindre, R)
+        
+        # Translation des points
+        cylindre_trans = translater_cylindre(cylindre_rot, G)
+        
+        # Tracé
+        x = [p[0] for p in cylindre_trans]
+        y = [p[1] for p in cylindre_trans]
+        z = [p[2] for p in cylindre_trans]
+        ax.scatter(x, y, z, alpha=0.4)
+    
+    ax.set_title("Rotation du cylindre sous couple")
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.set_zlim(-10, 10)
+    plt.show()
+
+tracer_positions()
