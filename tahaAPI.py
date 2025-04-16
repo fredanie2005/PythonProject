@@ -3,6 +3,9 @@ from mpl_toolkits.mplot3d import Axes3D # type: ignore
 import random
 import matplotlib.animation as animation
 
+def pi():
+    return 3.141592653589793
+
 def transpose(matrix):
     result = []
     for i in range(len(matrix[0])):

@@ -34,9 +34,9 @@ def addition_vecteurs3(vecteur1, vecteur2):
 
 def translation(m, F, G, vG, h):
 
-    somme_forces = somme_forces(F)
+    Somme_forces = somme_forces(F)
 
-    acceleration = multiplication_vecteur_scalaire(somme_forces, 1 / m)
+    acceleration = multiplication_vecteur_scalaire(Somme_forces, 1 / m)
     
     nouvelle_vitesse = addition_vecteurs3(vG, multiplication_vecteur_scalaire(acceleration, h))
 
@@ -100,5 +100,3 @@ def tracer_positions():
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     plt.show()
-
-tracer_positions()
